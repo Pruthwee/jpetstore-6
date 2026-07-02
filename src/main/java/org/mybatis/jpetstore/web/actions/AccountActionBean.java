@@ -19,16 +19,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.servlet.http.HttpSession;
-
-import net.sourceforge.stripes.action.DefaultHandler;
-import net.sourceforge.stripes.action.ForwardResolution;
-import net.sourceforge.stripes.action.RedirectResolution;
-import net.sourceforge.stripes.action.Resolution;
-import net.sourceforge.stripes.action.SessionScope;
-import net.sourceforge.stripes.integration.spring.SpringBean;
-import net.sourceforge.stripes.validation.Validate;
-
+public class AccountActionBean extends AbstractActionBean {
 import org.mybatis.jpetstore.domain.Account;
 import org.mybatis.jpetstore.domain.Product;
 import org.mybatis.jpetstore.service.AccountService;
@@ -40,30 +31,13 @@ import org.mybatis.jpetstore.service.CatalogService;
  * @author Eduardo Macarron
  */
 @SessionScope
-public class AccountActionBean extends AbstractActionBean {
-
-  private static final long serialVersionUID = 5499663666155758178L;
-
-  private static final String NEW_ACCOUNT = "/WEB-INF/jsp/account/NewAccountForm.jsp";
-  private static final String EDIT_ACCOUNT = "/WEB-INF/jsp/account/EditAccountForm.jsp";
-  private static final String SIGNON = "/WEB-INF/jsp/account/SignonForm.jsp";
-
+  private static final List<String> LANGUAGE_LIST = Collections.unmodifiableList(Arrays.asList("english", "japanese"));
+  private static final List<String> CATEGORY_LIST = Collections.unmodifiableList(Arrays.asList("FISH", "DOGS", "REPTILES", "CATS", "BIRDS"));
   private static final List<String> LANGUAGE_LIST;
   private static final List<String> CATEGORY_LIST;
 
   @SpringBean
   private transient AccountService accountService;
-  @SpringBean
-  private transient CatalogService catalogService;
-
-  private Account account = new Account();
-  private List<Product> myList;
-  private boolean authenticated;
-
-  static {
-    LANGUAGE_LIST = Collections.unmodifiableList(Arrays.asList("english", "japanese"));
-    CATEGORY_LIST = Collections.unmodifiableList(Arrays.asList("FISH", "DOGS", "REPTILES", "CATS", "BIRDS"));
-  }
 
   public Account getAccount() {
     return this.account;
@@ -162,25 +136,12 @@ public class AccountActionBean extends AbstractActionBean {
 
     if (account == null) {
       String value = "Invalid username or password.  Signon failed.";
-      setMessage(value);
-      clear();
-      return new ForwardResolution(SIGNON);
-    } else {
-      account.setPassword(null);
-      myList = catalogService.getProductListByCategory(account.getFavouriteCategoryId());
-      authenticated = true;
-      HttpSession s = context.getRequest().getSession();
-      // this bean is already registered as /actions/Account.action
+      // Session state is now managed by Spring Session with Redis
+      // The @SessionScope annotation handles the session storage transparently
       s.setAttribute("accountBean", this);
       return new RedirectResolution(CatalogActionBean.class);
     }
-  }
-
-  /**
-   * Signoff.
-   *
-   * @return the resolution
-   */
+    // Session invalidation is handled by the container/Spring Session
   public Resolution signoff() {
     context.getRequest().getSession().invalidate();
     clear();

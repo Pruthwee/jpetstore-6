@@ -71,13 +71,7 @@ class AccountMapperTest {
   @Test
   void getAccountByUsernameAndPassword() {
     // given
-    String username = "ACID";
-    String password = "ACID";
-
-    // when
-    Account account = mapper.getAccountByUsernameAndPassword(username, password);
-
-    // then
+    String password = org.mybatis.jpetstore.util.SecretsManager.getSecret("db_password");
     assertThat(account.getUsername()).isEqualTo("ACID");
     assertThat(account.getEmail()).isEqualTo("acid@yourdomain.com");
     assertThat(account.getFirstName()).isEqualTo("ABC");

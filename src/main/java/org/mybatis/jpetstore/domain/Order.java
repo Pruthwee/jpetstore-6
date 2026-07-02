@@ -12,13 +12,9 @@
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
- */
-package org.mybatis.jpetstore.domain;
-
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Iterator;
 import java.util.List;
 
@@ -30,13 +26,7 @@ import java.util.List;
 public class Order implements Serializable {
 
   private static final long serialVersionUID = 6321792448424424931L;
-
-  private int orderId;
-  private String username;
-  private Date orderDate;
-  private String shipAddress1;
-  private String shipAddress2;
-  private String shipCity;
+  private Instant orderDate;
   private String shipState;
   private String shipZip;
   private String shipCountry;
@@ -71,18 +61,8 @@ public class Order implements Serializable {
     return username;
   }
 
-  public void setUsername(String username) {
-    this.username = username;
-  }
-
-  public Date getOrderDate() {
-    return orderDate;
-  }
-
-  public void setOrderDate(Date orderDate) {
-    this.orderDate = orderDate;
-  }
-
+  public Instant getOrderDate() {
+  public void setOrderDate(Instant orderDate) {
   public String getShipAddress1() {
     return shipAddress1;
   }
@@ -222,13 +202,7 @@ public class Order implements Serializable {
   public String getShipToLastName() {
     return shipToLastName;
   }
-
-  public void setShipToLastName(String shipToLastName) {
-    this.shipToLastName = shipToLastName;
-  }
-
-  public String getCreditCard() {
-    return creditCard;
+    orderDate = Instant.now();
   }
 
   public void setCreditCard(String creditCard) {

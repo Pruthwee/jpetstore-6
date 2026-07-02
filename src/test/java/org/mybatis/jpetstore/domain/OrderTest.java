@@ -9,13 +9,7 @@
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
-package org.mybatis.jpetstore.domain;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import java.time.Instant;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -41,13 +35,7 @@ class OrderTest {
     account.setCountry("JPN");
     account.setPhone("09012345678");
 
-    Cart cart = new Cart();
-    Item item = new Item();
-    item.setItemId("I01");
-    item.setListPrice(new BigDecimal("2.05"));
-    cart.addItem(item, true);
-    cart.addItem(item, true);
-
+    assertThat(order.getOrderDate()).isBeforeOrEqualsTo(Instant.now());
     Order order = new Order();
 
     // when

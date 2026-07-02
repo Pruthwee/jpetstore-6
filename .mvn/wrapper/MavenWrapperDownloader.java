@@ -23,23 +23,26 @@ import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.Random;
 
-public final class MavenWrapperDownloader {
-    private static final String WRAPPER_VERSION = "3.3.4";
-
+public class MavenWrapperDownloader {
+    private static final String WRAPPER_VERSION = "0.5.6";
     private static final boolean VERBOSE = Boolean.parseBoolean(System.getenv("MVNW_VERBOSE"));
+    private static final int CONNECTION_TIMEOUT = 5000; // 5 seconds
+    private static final int READ_TIMEOUT = 10000;      // 10 seconds
 
     public static void main(String[] args) {
         log("Apache Maven Wrapper Downloader " + WRAPPER_VERSION);
-
-        if (args.length != 2) {
-            System.err.println(" - ERROR wrapperUrl or wrapperJarPath parameter missing");
-            System.exit(1);
-        }
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            log(" - Shutdown hook triggered. Cleaning up resources...");
+            // In a real application, you would close open streams or delete temp files here.
+            // For this downloader, we ensure a graceful exit signal is acknowledged.
+            log(" - Graceful shutdown complete.");
+        }));
 
         try {
             log(" - Downloader started");
@@ -73,16 +76,21 @@ public final class MavenWrapperDownloader {
                 }
             });
         }
+        
+        URLConnection connection = wrapperUrl.openConnection();
+        connection.setConnectTimeout(CONNECTION_TIMEOUT);
+        connection.setReadTimeout(READ_TIMEOUT);
+
         Path temp = wrapperJarPath
-                .getParent()
                 .resolve(wrapperJarPath.getFileName() + "."
-                        + Long.toUnsignedString(ThreadLocalRandom.current().nextLong()) + ".tmp");
-        try (InputStream inStream = wrapperUrl.openStream()) {
-            Files.copy(inStream, temp, StandardCopyOption.REPLACE_EXISTING);
-            Files.move(temp, wrapperJarPath, StandardCopyOption.REPLACE_EXISTING);
-        } finally {
-            Files.deleteIfExists(temp);
+                        + Long.toUnsignedString(new Random().nextLong()) + ".tmp");
+        Files.deleteIfExists(temp);
+        
+        try (InputStream in = connection.getInputStream()) {
+            Files.copy(in, temp, StandardCopyOption.REPLACE_EXISTING);
         }
+        
+        Files.move(temp, wrapperJarPath, StandardCopyOption.REPLACE_EXISTING);
         log(" - Downloader complete");
     }
 
@@ -91,5 +99,4 @@ public final class MavenWrapperDownloader {
             System.out.println(msg);
         }
     }
-
 }
