@@ -35,11 +35,10 @@ public final class MavenWrapperDownloader {
 
     public static void main(String[] args) {
         log("Apache Maven Wrapper Downloader " + WRAPPER_VERSION);
-
-        if (args.length != 2) {
-            System.err.println(" - ERROR wrapperUrl or wrapperJarPath parameter missing");
-            System.exit(1);
-        }
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                log("Shutdown hook triggered. Cleaning up resources...");
+                // Perform any necessary cleanup here
+            }));
 
         try {
             log(" - Downloader started");
@@ -65,13 +64,13 @@ public final class MavenWrapperDownloader {
         log(" - Downloading to: " + wrapperJarPath);
         if (System.getenv("MVNW_USERNAME") != null && System.getenv("MVNW_PASSWORD") != null) {
             final String username = System.getenv("MVNW_USERNAME");
-            final char[] password = System.getenv("MVNW_PASSWORD").toCharArray();
-            Authenticator.setDefault(new Authenticator() {
-                @Override
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(username, password);
-                }
-            });
+        
+        // Set connection timeouts for the URL connection
+        java.net.URLConnection connection = wrapperUrl.openConnection();
+        connection.setConnectTimeout(5000);
+        connection.setReadTimeout(5000);
+
+        try (InputStream inStream = connection.getInputStream()) {
         }
         Path temp = wrapperJarPath
                 .getParent()

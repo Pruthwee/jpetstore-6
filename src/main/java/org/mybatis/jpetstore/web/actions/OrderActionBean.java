@@ -11,13 +11,6 @@
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
-package org.mybatis.jpetstore.web.actions;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
@@ -101,25 +94,12 @@ public class OrderActionBean extends AbstractActionBean {
 
   /**
    * List orders.
-   *
-   * @return the resolution
-   */
-  public Resolution listOrders() {
-    HttpSession session = context.getRequest().getSession();
-    AccountActionBean accountBean = (AccountActionBean) session.getAttribute("/actions/Account.action");
-    orderList = orderService.getOrdersByUsername(accountBean.getAccount().getUsername());
-    return new ForwardResolution(LIST_ORDERS);
+    AccountActionBean accountBean = (AccountActionBean) context.getRequest().getSession().getAttribute("/actions/Account.action");
   }
 
   /**
-   * New order form.
-   *
-   * @return the resolution
-   */
-  public Resolution newOrderForm() {
-    HttpSession session = context.getRequest().getSession();
-    AccountActionBean accountBean = (AccountActionBean) session.getAttribute("/actions/Account.action");
-    CartActionBean cartBean = (CartActionBean) session.getAttribute("/actions/Cart.action");
+    AccountActionBean accountBean = (AccountActionBean) context.getRequest().getSession().getAttribute("/actions/Account.action");
+    CartActionBean cartBean = (CartActionBean) context.getRequest().getSession().getAttribute("/actions/Cart.action");
 
     clear();
     if (accountBean == null || !accountBean.isAuthenticated()) {
@@ -131,24 +111,11 @@ public class OrderActionBean extends AbstractActionBean {
     } else {
       setMessage("An order could not be created because a cart could not be found.");
       return new ForwardResolution(ERROR);
-    }
-  }
-
-  /**
-   * New order.
-   *
-   * @return the resolution
-   */
+    
   public Resolution newOrder() {
     HttpSession session = context.getRequest().getSession();
 
-    if (shippingAddressRequired) {
-      shippingAddressRequired = false;
-      return new ForwardResolution(SHIPPING);
-    } else if (!isConfirmed()) {
-      return new ForwardResolution(CONFIRM_ORDER);
-    } else if (getOrder() != null) {
-
+      CartActionBean cartBean = (CartActionBean) context.getRequest().getSession().getAttribute("/actions/Cart.action");
       orderService.insertOrder(order);
 
       CartActionBean cartBean = (CartActionBean) session.getAttribute("/actions/Cart.action");
@@ -157,14 +124,7 @@ public class OrderActionBean extends AbstractActionBean {
       setMessage("Thank you, your order has been submitted.");
 
       return new ForwardResolution(VIEW_ORDER);
-    } else {
-      setMessage("An error occurred processing your order (order was null).");
-      return new ForwardResolution(ERROR);
-    }
-  }
-
-  /**
-   * View order.
+    
    *
    * @return the resolution
    */

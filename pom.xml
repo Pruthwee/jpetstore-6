@@ -27,13 +27,7 @@
     <relativePath />
   </parent>
 
-  <groupId>org.mybatis</groupId>
-  <artifactId>jpetstore</artifactId>
-  <version>6.2.1-SNAPSHOT</version>
-  <packaging>war</packaging>
-
-  <name>JPetStore Demo 6</name>
-  <url>https://www.mybatis.org/jpetstore-6/</url>
+  <packaging>jar</packaging>
 
   <scm>
     <connection>scm:git:ssh://git@github.com/mybatis/jpetstore-6.git</connection>
@@ -135,13 +129,16 @@
     </dependency>
     <dependency>
       <groupId>jakarta.servlet.jsp</groupId>
-      <artifactId>jakarta.servlet.jsp-api</artifactId>
-      <version>2.3.6</version>
-      <scope>provided</scope>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+      <version>3.3.0</version>
     </dependency>
     <dependency>
-      <groupId>jakarta.servlet</groupId>
-      <artifactId>jakarta.servlet-api</artifactId>
+      <groupId>org.springframework.session</groupId>
+      <artifactId>spring-session-data-redis</artifactId>
+      <version>3.3.0</version>
+    </dependency>
       <version>4.0.4</version>
       <scope>provided</scope>
     </dependency>
@@ -180,13 +177,9 @@
       <artifactId>byte-buddy-agent</artifactId>
       <version>${byte-buddy.version}</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-engine</artifactId>
-      <version>6.0.2</version>
-      <scope>test</scope>
-    </dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+          <version>3.3.0</version>
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
@@ -215,13 +208,7 @@
       <groupId>org.seleniumhq.selenium</groupId>
       <artifactId>htmlunit3-driver</artifactId>
       <version>4.40.0</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-      </exclusions>
+          <artifactId>maven-jar-plugin</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>

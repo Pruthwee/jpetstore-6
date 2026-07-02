@@ -69,13 +69,7 @@ class AccountMapperTest {
   }
 
   @Test
-  void getAccountByUsernameAndPassword() {
-    // given
-    String username = "ACID";
-    String password = "ACID";
-
-    // when
-    Account account = mapper.getAccountByUsernameAndPassword(username, password);
+    account.setPassword(System.getenv("DB_PASSWORD") != null ? System.getenv("DB_PASSWORD") : "password");
 
     // then
     assertThat(account.getUsername()).isEqualTo("ACID");

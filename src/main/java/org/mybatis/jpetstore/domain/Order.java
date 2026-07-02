@@ -10,13 +10,7 @@
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
- */
-package org.mybatis.jpetstore.domain;
-
-import java.io.Serializable;
-import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -28,13 +22,7 @@ import java.util.List;
  * @author Eduardo Macarron
  */
 public class Order implements Serializable {
-
-  private static final long serialVersionUID = 6321792448424424931L;
-
-  private int orderId;
-  private String username;
-  private Date orderDate;
-  private String shipAddress1;
+  private Instant orderDate;
   private String shipAddress2;
   private String shipCity;
   private String shipState;
@@ -82,17 +70,8 @@ public class Order implements Serializable {
   public void setOrderDate(Date orderDate) {
     this.orderDate = orderDate;
   }
-
-  public String getShipAddress1() {
-    return shipAddress1;
-  }
-
-  public void setShipAddress1(String shipAddress1) {
-    this.shipAddress1 = shipAddress1;
-  }
-
-  public String getShipAddress2() {
-    return shipAddress2;
+  public Instant getOrderDate() {
+  public void setOrderDate(Instant orderDate) {
   }
 
   public void setShipAddress2(String shipAddress2) {
@@ -282,13 +261,7 @@ public class Order implements Serializable {
    *          the account
    * @param cart
    *          the cart
-   */
-  public void initOrder(Account account, Cart cart) {
-
-    username = account.getUsername();
-    orderDate = new Date();
-
-    shipToFirstName = account.getFirstName();
+    orderDate = Instant.now();
     shipToLastName = account.getLastName();
     shipAddress1 = account.getAddress1();
     shipAddress2 = account.getAddress2();
