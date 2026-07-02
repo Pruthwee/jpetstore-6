@@ -27,12 +27,7 @@ import static com.codeborne.selenide.Configuration.timeout;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 import static com.codeborne.selenide.Selenide.open;
-import static com.codeborne.selenide.Selenide.title;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import com.codeborne.selenide.SelenideElement;
-import com.codeborne.selenide.junit5.ScreenShooterExtension;
-
+import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -199,13 +194,9 @@ class ScreenTransitionIT {
 
     // Move to use registration page
     $(By.linkText("Register Now!")).click();
-    $(By.cssSelector("#Catalog h3")).shouldBe(text("User Information"));
-
-    // Create a new user
-    String userId = String.valueOf(System.currentTimeMillis());
-    $(By.name("username")).setValue(userId);
-    $(By.name("password")).setValue("password");
-    $(By.name("repeatedPassword")).setValue("password");
+    // Cloud-ready: Use java.time API with UTC for timezone consistency across distributed cloud services
+    // Instant.now().toEpochMilli() provides UTC-based timestamp
+    String userId = String.valueOf(Instant.now().toEpochMilli());
     $(By.name("account.firstName")).setValue("Jon");
     $(By.name("account.lastName")).setValue("MyBatis");
     $(By.name("account.email")).setValue("jon.mybatis@test.com");

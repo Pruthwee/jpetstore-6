@@ -72,7 +72,9 @@ class AccountMapperTest {
   void getAccountByUsernameAndPassword() {
     // given
     String username = "ACID";
-    String password = "ACID";
+    // Cloud-ready: Use AWS Secrets Manager for credentials in production
+    // For testing, retrieve from environment variable or test configuration
+    String password = System.getenv("TEST_DB_PASSWORD") != null ? System.getenv("TEST_DB_PASSWORD") : "ACID";
 
     // when
     Account account = mapper.getAccountByUsernameAndPassword(username, password);
@@ -159,7 +161,8 @@ class AccountMapperTest {
     // given
     Account account = new Account();
     account.setUsername("mybatis");
-    account.setPassword("password");
+    // Cloud-ready: Use AWS Secrets Manager for password management in production
+    account.setPassword(System.getenv("TEST_ACCOUNT_PASSWORD") != null ? System.getenv("TEST_ACCOUNT_PASSWORD") : "password");
 
     // when
     mapper.insertSignon(account);
@@ -233,7 +236,8 @@ class AccountMapperTest {
     // given
     Account account = new Account();
     account.setUsername("j2ee");
-    account.setPassword("password");
+    // Cloud-ready: Use AWS Secrets Manager for password management in production
+    account.setPassword(System.getenv("TEST_ACCOUNT_PASSWORD") != null ? System.getenv("TEST_ACCOUNT_PASSWORD") : "password");
 
     // when
     mapper.updateSignon(account);

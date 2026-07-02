@@ -23,18 +23,30 @@ import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.Random;
 
 public final class MavenWrapperDownloader {
     private static final String WRAPPER_VERSION = "3.3.4";
 
     private static final boolean VERBOSE = Boolean.parseBoolean(System.getenv("MVNW_VERBOSE"));
+    
+    // Cloud-ready: Connection timeout configuration for AWS SDK and HTTP libraries
+    private static final int CONNECTION_TIMEOUT_MS = 10000; // 10 seconds
+    private static final int READ_TIMEOUT_MS = 30000; // 30 seconds
 
     public static void main(String[] args) {
         log("Apache Maven Wrapper Downloader " + WRAPPER_VERSION);
+
+        // Cloud-ready: Add JVM shutdown hook for graceful termination in EKS/ECS
+        // This ensures proper cleanup during container lifecycle events (SIGTERM)
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            log("Shutdown hook triggered - cleaning up resources");
+            // Perform any necessary cleanup here
+        }));
 
         if (args.length != 2) {
             System.err.println(" - ERROR wrapperUrl or wrapperJarPath parameter missing");
@@ -73,11 +85,22 @@ public final class MavenWrapperDownloader {
                 }
             });
         }
+        
+        // Cloud-ready: Replace ThreadLocalRandom with Random to avoid ThreadLocal issues
+        // in thread-pooled cloud environments
+        Random random = new Random();
         Path temp = wrapperJarPath
                 .getParent()
                 .resolve(wrapperJarPath.getFileName() + "."
-                        + Long.toUnsignedString(ThreadLocalRandom.current().nextLong()) + ".tmp");
-        try (InputStream inStream = wrapperUrl.openStream()) {
+                        + Long.toUnsignedString(random.nextLong()) + ".tmp");
+        
+        // Cloud-ready: Configure connection timeouts to prevent indefinite hangs
+        // in cloud environments with variable network latency
+        URLConnection connection = wrapperUrl.openConnection();
+        connection.setConnectTimeout(CONNECTION_TIMEOUT_MS);
+        connection.setReadTimeout(READ_TIMEOUT_MS);
+        
+        try (InputStream inStream = connection.getInputStream()) {
             Files.copy(inStream, temp, StandardCopyOption.REPLACE_EXISTING);
             Files.move(temp, wrapperJarPath, StandardCopyOption.REPLACE_EXISTING);
         } finally {

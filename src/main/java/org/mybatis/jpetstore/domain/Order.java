@@ -14,12 +14,7 @@
  *    limitations under the License.
  */
 package org.mybatis.jpetstore.domain;
-
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -283,13 +278,9 @@ public class Order implements Serializable {
    * @param cart
    *          the cart
    */
-  public void initOrder(Account account, Cart cart) {
-
-    username = account.getUsername();
-    orderDate = new Date();
-
-    shipToFirstName = account.getFirstName();
-    shipToLastName = account.getLastName();
+    // Cloud-ready: Use java.time API with UTC for timezone consistency across distributed cloud services
+    // Convert Instant to Date for backward compatibility with existing database schema
+    orderDate = Date.from(Instant.now());
     shipAddress1 = account.getAddress1();
     shipAddress2 = account.getAddress2();
     shipCity = account.getCity();

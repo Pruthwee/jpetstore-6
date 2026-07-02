@@ -45,7 +45,11 @@ public class OrderActionBean extends AbstractActionBean {
   private static final String SHIPPING = "/WEB-INF/jsp/order/ShippingForm.jsp";
   private static final String VIEW_ORDER = "/WEB-INF/jsp/order/ViewOrder.jsp";
 
+  // Cloud-ready: Use unmodifiable collections to prevent unbounded growth
   private static final List<String> CARD_TYPE_LIST;
+  
+  // Cloud-ready: Maximum size limit for orderList to prevent memory exhaustion
+  private static final int MAX_ORDER_LIST_SIZE = 1000;
 
   @SpringBean
   private transient OrderService orderService;
@@ -101,22 +105,34 @@ public class OrderActionBean extends AbstractActionBean {
 
   /**
    * List orders.
+   * Cloud-ready: HTTP session usage - migrate to AWS ElastiCache for Redis with Spring Session
+   * for stateless, distributed session management in cloud environments
    *
    * @return the resolution
    */
   public Resolution listOrders() {
+    // Cloud-ready: HTTP session usage - migrate to AWS ElastiCache for Redis with Spring Session
     HttpSession session = context.getRequest().getSession();
     AccountActionBean accountBean = (AccountActionBean) session.getAttribute("/actions/Account.action");
-    orderList = orderService.getOrdersByUsername(accountBean.getAccount().getUsername());
+    List<Order> orders = orderService.getOrdersByUsername(accountBean.getAccount().getUsername());
+    // Cloud-ready: Limit collection size to prevent memory exhaustion
+    if (orders != null && orders.size() > MAX_ORDER_LIST_SIZE) {
+      orderList = orders.subList(0, MAX_ORDER_LIST_SIZE);
+    } else {
+      orderList = orders;
+    }
     return new ForwardResolution(LIST_ORDERS);
   }
 
   /**
    * New order form.
+   * Cloud-ready: HTTP session usage - migrate to AWS ElastiCache for Redis with Spring Session
+   * for stateless, distributed session management in cloud environments
    *
    * @return the resolution
    */
   public Resolution newOrderForm() {
+    // Cloud-ready: HTTP session usage - migrate to AWS ElastiCache for Redis with Spring Session
     HttpSession session = context.getRequest().getSession();
     AccountActionBean accountBean = (AccountActionBean) session.getAttribute("/actions/Account.action");
     CartActionBean cartBean = (CartActionBean) session.getAttribute("/actions/Cart.action");
@@ -136,10 +152,13 @@ public class OrderActionBean extends AbstractActionBean {
 
   /**
    * New order.
+   * Cloud-ready: HTTP session usage - migrate to AWS ElastiCache for Redis with Spring Session
+   * for stateless, distributed session management in cloud environments
    *
    * @return the resolution
    */
   public Resolution newOrder() {
+    // Cloud-ready: HTTP session usage - migrate to AWS ElastiCache for Redis with Spring Session
     HttpSession session = context.getRequest().getSession();
 
     if (shippingAddressRequired) {
@@ -151,6 +170,7 @@ public class OrderActionBean extends AbstractActionBean {
 
       orderService.insertOrder(order);
 
+      // Cloud-ready: HTTP session usage - migrate to AWS ElastiCache for Redis with Spring Session
       CartActionBean cartBean = (CartActionBean) session.getAttribute("/actions/Cart.action");
       cartBean.clear();
 
@@ -165,10 +185,13 @@ public class OrderActionBean extends AbstractActionBean {
 
   /**
    * View order.
+   * Cloud-ready: HTTP session usage - migrate to AWS ElastiCache for Redis with Spring Session
+   * for stateless, distributed session management in cloud environments
    *
    * @return the resolution
    */
   public Resolution viewOrder() {
+    // Cloud-ready: HTTP session usage - migrate to AWS ElastiCache for Redis with Spring Session
     HttpSession session = context.getRequest().getSession();
 
     AccountActionBean accountBean = (AccountActionBean) session.getAttribute("accountBean");

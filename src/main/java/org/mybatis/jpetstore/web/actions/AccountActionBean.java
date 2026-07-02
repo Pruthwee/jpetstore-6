@@ -48,8 +48,13 @@ public class AccountActionBean extends AbstractActionBean {
   private static final String EDIT_ACCOUNT = "/WEB-INF/jsp/account/EditAccountForm.jsp";
   private static final String SIGNON = "/WEB-INF/jsp/account/SignonForm.jsp";
 
+  // Cloud-ready: Use unmodifiable collections to prevent unbounded growth
+  // In production, consider migrating to AWS ElastiCache for Redis for distributed session management
   private static final List<String> LANGUAGE_LIST;
   private static final List<String> CATEGORY_LIST;
+  
+  // Cloud-ready: Maximum size limit for myList to prevent memory exhaustion
+  private static final int MAX_MY_LIST_SIZE = 100;
 
   @SpringBean
   private transient AccountService accountService;
@@ -92,7 +97,12 @@ public class AccountActionBean extends AbstractActionBean {
   }
 
   public void setMyList(List<Product> myList) {
-    this.myList = myList;
+    // Cloud-ready: Enforce size limit to prevent unbounded collection growth
+    if (myList != null && myList.size() > MAX_MY_LIST_SIZE) {
+      this.myList = myList.subList(0, MAX_MY_LIST_SIZE);
+    } else {
+      this.myList = myList;
+    }
   }
 
   public List<String> getLanguages() {
@@ -115,7 +125,13 @@ public class AccountActionBean extends AbstractActionBean {
   public Resolution newAccount() {
     accountService.insertAccount(account);
     account = accountService.getAccount(account.getUsername());
-    myList = catalogService.getProductListByCategory(account.getFavouriteCategoryId());
+    List<Product> productList = catalogService.getProductListByCategory(account.getFavouriteCategoryId());
+    // Cloud-ready: Limit collection size to prevent memory exhaustion
+    if (productList != null && productList.size() > MAX_MY_LIST_SIZE) {
+      myList = productList.subList(0, MAX_MY_LIST_SIZE);
+    } else {
+      myList = productList;
+    }
     authenticated = true;
     return new RedirectResolution(CatalogActionBean.class);
   }
@@ -137,7 +153,13 @@ public class AccountActionBean extends AbstractActionBean {
   public Resolution editAccount() {
     accountService.updateAccount(account);
     account = accountService.getAccount(account.getUsername());
-    myList = catalogService.getProductListByCategory(account.getFavouriteCategoryId());
+    List<Product> productList = catalogService.getProductListByCategory(account.getFavouriteCategoryId());
+    // Cloud-ready: Limit collection size to prevent memory exhaustion
+    if (productList != null && productList.size() > MAX_MY_LIST_SIZE) {
+      myList = productList.subList(0, MAX_MY_LIST_SIZE);
+    } else {
+      myList = productList;
+    }
     return new RedirectResolution(CatalogActionBean.class);
   }
 
@@ -153,6 +175,8 @@ public class AccountActionBean extends AbstractActionBean {
 
   /**
    * Signon.
+   * Cloud-ready: Session data should be migrated to Amazon ElastiCache for Redis
+   * using Spring Session for distributed, stateless session management
    *
    * @return the resolution
    */
@@ -167,8 +191,16 @@ public class AccountActionBean extends AbstractActionBean {
       return new ForwardResolution(SIGNON);
     } else {
       account.setPassword(null);
-      myList = catalogService.getProductListByCategory(account.getFavouriteCategoryId());
+      List<Product> productList = catalogService.getProductListByCategory(account.getFavouriteCategoryId());
+      // Cloud-ready: Limit collection size to prevent memory exhaustion
+      if (productList != null && productList.size() > MAX_MY_LIST_SIZE) {
+        myList = productList.subList(0, MAX_MY_LIST_SIZE);
+      } else {
+        myList = productList;
+      }
       authenticated = true;
+      // Cloud-ready: HTTP session usage - migrate to AWS ElastiCache for Redis with Spring Session
+      // for stateless, distributed session management in cloud environments
       HttpSession s = context.getRequest().getSession();
       // this bean is already registered as /actions/Account.action
       s.setAttribute("accountBean", this);

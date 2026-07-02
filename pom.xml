@@ -27,13 +27,8 @@
     <relativePath />
   </parent>
 
-  <groupId>org.mybatis</groupId>
-  <artifactId>jpetstore</artifactId>
-  <version>6.2.1-SNAPSHOT</version>
-  <packaging>war</packaging>
-
-  <name>JPetStore Demo 6</name>
-  <url>https://www.mybatis.org/jpetstore-6/</url>
+  <!-- Cloud-ready: Changed from WAR to JAR for executable JAR with embedded Tomcat for AWS containerization -->
+  <packaging>jar</packaging>
 
   <scm>
     <connection>scm:git:ssh://git@github.com/mybatis/jpetstore-6.git</connection>
@@ -142,12 +137,13 @@
     <dependency>
       <groupId>jakarta.servlet</groupId>
       <artifactId>jakarta.servlet-api</artifactId>
-      <version>4.0.4</version>
-      <scope>provided</scope>
-    </dependency>
+    <!-- Cloud-ready: Add embedded Tomcat for executable JAR packaging -->
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-core</artifactId>
+      <version>9.0.113</version>
+      <scope>compile</scope>
+    </dependency>
       <version>${slf4j.version}</version>
     </dependency>
     <dependency>
@@ -234,13 +230,7 @@
   <build>
     <finalName>jpetstore</finalName>
     <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-war-plugin</artifactId>
-          <version>3.5.1</version>
-          <configuration>
-            <archive>
+          <artifactId>maven-jar-plugin</artifactId>
               <manifestEntries>
                 <Dependencies>jdk.unsupported</Dependencies>
               </manifestEntries>
@@ -525,13 +515,7 @@
         <cargo.maven.containerUrl>http://caucho.com/download/resin-${resin.version}.zip</cargo.maven.containerUrl>
       </properties>
       <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-war-plugin</artifactId>
-            <configuration>
-              <packagingExcludes>WEB-INF/beans.xml</packagingExcludes>
-            </configuration>
+            <artifactId>maven-jar-plugin</artifactId>
           </plugin>
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
